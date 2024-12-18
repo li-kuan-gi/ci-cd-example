@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
@@ -25,12 +26,14 @@ jobs:
       run: |
         pytest tests/
 
-  deploy:
-    needs: test
+  # 新增一個檢查工作
+  check-test-results:
+    needs: test  # 這個工作依賴於 test 工作
     runs-on: ubuntu-latest
-    # 這裡可以根據您的部署需求添加實際的部署步驟
+    # 如果測試失敗，這個步驟會導致工作流程失敗
+    if: failure()
     steps:
-    - name: Deploy to production
+    - name: Tests failed
       run: |
-        echo "Deploying to production server"
-        # 在這裡添加您的部署腳本，例如 SSH 到伺服器、拉取代碼等
+        echo "Tests failed. Blocking push/merge."
+        exit 1
